@@ -9,7 +9,7 @@ class App extends Component {
     automata: {
       alphabet: [],
       states: [],
-      transitions: {},
+      transitions: [],
       initialState: '',
       acceptanceStates: []
     },
@@ -26,7 +26,7 @@ class App extends Component {
       const automata = {
         ...prevState.automata,
         acceptanceStates: [],
-        transitions: {},
+        transitions: [],
         states: [],
         initialState: ''
       }
@@ -92,13 +92,7 @@ class App extends Component {
 
         const automata = {
           ...prevAutomata,
-          transitions: {
-            ...prevAutomata.transitions,
-            [prevAutomata.states[i]]: {
-              ...prevAutomata.transitions[prevAutomata.states[i]],
-              [prevAutomata.alphbet[j]]: transition
-            }
-          }
+          transitions: this.setArray(i, {...prevAutomata.transitions[i], [prevAutomata.alphabet[j]]: transition}, prevAutomata.transitions)          
         };
 
         return {
