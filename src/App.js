@@ -1,105 +1,157 @@
 import './App.css';
 import { Component } from 'react';
+import Row from './components/Row.component';
 
 
 class App extends Component {
 
-  constructor(props) {
-    super(props);
-  }
-
-  
   state = {
     automata: {
-      alfabeto: ['', '0', '1'],
+      alfabeto: [],
       states: [],
-      transitions: {},
+      transitions: [],
       initialState: '',
       acceptanceStates: []
     },
-    rows:1,
-    columns: 1,
-    add: false,
     cantidadAlfabeto: 0,
+    inputsAlphabet: [],
+    inputsRow: [],
     cantidadEstados: 0,
   };
 
-  // myTable = document.querySelector("table"); 
-
-  columns = this.state.automata.alfabeto.map((alfa) => <th scope="col">{alfa}</th>);
-
-  // valorEstado = (event) => {
-  //   alert("hola");
-  //   console.log("hola");
-  // }
-
-  valorEstado = () => {
-
-    console.log("Hola");
-    
-  }
-
   handlerNumberStates = (event) => {
-    const resultado = event.target.value;
-    this.setState({
-      cantidadEstados: resultado,
+    const nStates = event.target.value;
+    this.setState((prevState) => {
+
+      const automata = {
+        ...prevState.automata,
+        acceptanceStates: [],
+        transitions: [],
+        states: [],
+        initialState: ''
+      }
+
+      return {
+        ...prevState,
+        cantidadEstados: nStates,
+        inputsRow: [],
+        automata
+      }
+
     });
 
-    let inputs= "";
-    // let array = [];
 
-    for(let i=0; i<resultado; i++) {
 
-      inputs += `<div>`;
-      inputs += `<label>Estado ${i+1}</label>`
+    for (let i = 0; i < nStates; i++) {
 
-      if(i === 0) {
-        inputs += `<input type="text" placeholder="Ingrese el estado inicial" onChange={this.valorEstado} />`
-        // array.push(inputs);
-      } else {
-        inputs += `<input type="text" placeholder="Ingrese el estado ${i+1}" onChange=\"this.valorEstado\" />`
-        // array.push(inputs);
-      }
-      
-      for(let x=0; x<this.state.cantidadAlfabeto; x++) {
-        inputs += `<input type="text" placeholder="ruta ${x+1}"/>`;
-      }
-
-      inputs += `</div>`
-
-      // array.push(i);
-
+      this.setState((prevState) => {
+        return {
+          ...prevState,
+          inputsRow: [...prevState.inputsRow, Row({
+            i,
+            setStates: this.setStates,
+            setTransitions: this.setTransitions,
+            nAlphabet: prevState.cantidadAlfabeto
+          })]
+        }
+      });
       
     }
 
-    // console.log(array);
+  }
 
-    // const double = array.map((arreglo) => {
-    //   return <input type="text" onChange={this.valorEstado} />
-    // })
+  setStates = (i) => {
+    return (e) => {
+      const state = e.target.value;
 
-    // console.log([double]);
+      this.setState((prevState) => {
+        const automata = {
+          ...prevState.automata,
+          states: state.length > 1 && state.includes('*') ? this.setArray(i, state.split('')[1], prevState.automata.states) : this.setArray(i, state, prevState.automata.states),
+          initialState: i === 0 ? state : prevState.automata.initialState,
+          acceptanceStates: state.length > 1 && state.includes('*') 
+            ? this.setArray(i, state.split('')[1], prevState.automata.acceptanceStates)
+            : prevState.automata.acceptanceStates,
+        };
 
-    document.getElementById("InputsStates").innerHTML = inputs;
+        return {
+          ...prevState,
+          automata
+        }
+      })
 
+    }
+  }
+
+  setTransitions = (i, j) => {
+    return (e) => {
+      const transition = e.target.value;
+      
+      this.setState((prevState) => {
+        const prevAutomata = prevState.automata
+
+        const automata = {
+          ...prevAutomata,
+          transitions: {
+            ...prevAutomata.transitions,
+            [prevAutomata.states[i]]: {
+              ...prevAutomata.transitions[prevAutomata.states[i]],
+              [prevAutomata.alfabeto[j]]: transition
+            }
+          }
+        };
+
+        return {
+          ...prevState,
+          automata
+        }
+      })
+    }
+  }
+
+  setArray = (i, value, array) => {
+    const newArray = array;
+    newArray[i] = value;
+    return newArray;
+  }
+
+  setAlPhabet = (i) => {
+    return (e) => {
+      const value = e.target.value;
+      this.setState((prevState) => {
+        const automata = {
+          ...prevState.automata,
+          alfabeto: this.setArray(i, value, prevState.automata.alfabeto)
+        }
+
+        return {
+          ...prevState,
+          automata
+        }
+      });
+      console.log(this.state.automata);
+    }
   }
 
 
   handlerAlphabet = (event) => {
 
-    const resultado = event.target.value;
+    const value = event.target.value;
     this.setState({
-      cantidadAlfabeto: resultado,
+      cantidadAlfabeto: value,
+      inputsAlphabet: []
     });
 
-    let contador = "";
-    for(let i=0; i<resultado; i++) {
-      contador += `<input type="text" placeholder="Caracter ${i+1}"/>`;
+    for (let i = 0; i < value; i++) {
+      this.setState((prevState) => {
+        return {
+          ...prevState,
+          inputsAlphabet: [...prevState.inputsAlphabet, <input key={i} type="text" placeholder={`Caracter ${i + 1}`} onChange={this.setAlPhabet(i)}/>]
+        }
+      });
     }
 
-    document.getElementById("alphabet").innerHTML = contador;
 
-    return doubled;
 
   }
 
@@ -110,24 +162,28 @@ class App extends Component {
 
   render() {
 
+    const { inputsAlphabet, inputsRow } = this.state;
+
     return (
       <div className="App container" >
         <div className="mt-5">
 
           <div>
             <p>Ingresa la cantidad de letras del alfabeto </p>
-              <input type="text" onChange={this.handlerAlphabet} placeholder="Numero de letras del alfabeto" />
-              <div id="alphabet">
-              </div>
+            <input type="text" onChange={this.handlerAlphabet} placeholder="Numero de letras del alfabeto" />
+            <div id="alphabet">
+              {inputsAlphabet} 
+            </div>
           </div>
 
           <div className="m-5">
-              <p>Ingresa la cantidad de estados </p>
-              <input type="text" onChange={this.handlerNumberStates} placeholder="Numero de estados" />
-              <div id="InputsStates">
-              </div>
+            <p>Ingresa la cantidad de estados </p>
+            <input type="text" onChange={this.handlerNumberStates} placeholder="Numero de estados" />
+            <div id="InputsStates">
+              {inputsRow}
+            </div>
           </div>
-          
+
         </div>
 
       </div>
