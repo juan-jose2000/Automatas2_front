@@ -1,6 +1,8 @@
 import './App.css';
 import { Component } from 'react';
 import Row from './components/Row.component';
+import Table from './components/Table.component';
+import axios from 'axios';
 
 
 class App extends Component {
@@ -13,6 +15,7 @@ class App extends Component {
       initialState: '',
       acceptanceStates: []
     },
+    AFD: null,
     cantidadAlfabeto: 0,
     inputsAlphabet: [],
     inputsRow: [],
@@ -22,7 +25,6 @@ class App extends Component {
   handlerNumberStates = (event) => {
     const nStates = event.target.value;
     this.setState((prevState) => {
-
       const automata = {
         ...prevState.automata,
         acceptanceStates: [],
@@ -40,10 +42,7 @@ class App extends Component {
 
     });
 
-
-
     for (let i = 0; i < nStates; i++) {
-
       this.setState((prevState) => {
         return {
           ...prevState,
@@ -55,7 +54,6 @@ class App extends Component {
           })]
         }
       });
-      
     }
 
   }
@@ -69,7 +67,7 @@ class App extends Component {
           ...prevState.automata,
           states: state.length > 1 && state.includes('*') ? this.setArray(i, state.split('')[1], prevState.automata.states) : this.setArray(i, state, prevState.automata.states),
           initialState: i === 0 ? state : prevState.automata.initialState,
-          acceptanceStates: state.length > 1 && state.includes('*') 
+          acceptanceStates: state.length > 1 && state.includes('*')
             ? this.setArray(i, state.split('')[1], prevState.automata.acceptanceStates)
             : prevState.automata.acceptanceStates,
         };
@@ -86,13 +84,13 @@ class App extends Component {
   setTransitions = (i, j) => {
     return (e) => {
       const transition = e.target.value;
-      
+
       this.setState((prevState) => {
         const prevAutomata = prevState.automata
 
         const automata = {
           ...prevAutomata,
-          transitions: this.setArray(i, {...prevAutomata.transitions[i], [prevAutomata.alphabet[j]]: transition}, prevAutomata.transitions)          
+          transitions: this.setArray(i, { ...prevAutomata.transitions[i], [prevAutomata.alphabet[j]]: transition }, prevAutomata.transitions)
         };
 
         return {
@@ -127,7 +125,6 @@ class App extends Component {
     }
   }
 
-
   handlerAlphabet = (event) => {
 
     const value = event.target.value;
@@ -140,7 +137,7 @@ class App extends Component {
       this.setState((prevState) => {
         return {
           ...prevState,
-          inputsAlphabet: [...prevState.inputsAlphabet, <input key={i} type="text" placeholder={`Caracter ${i + 1}`} onChange={this.setAlPhabet(i)}/>]
+          inputsAlphabet: [...prevState.inputsAlphabet, <input key={i} type="text" placeholder={`Caracter ${i + 1}`} onChange={this.setAlPhabet(i)} />]
         }
       });
     }
@@ -149,24 +146,34 @@ class App extends Component {
 
   }
 
+  getAFD = async () => {
+    console.log(this.state.automata);
+    const { data: AFD } = await axios('http://192.168.100.4:3001/api/transform', {
+        method: 'POST',
+        data: this.state.automata
+    });
 
-  handlerIsAceptation = (event) => {
-    // const resultado = event.target.value;
+    this.setState({
+      AFD
+    });
   }
 
   render() {
 
-    const { inputsAlphabet, inputsRow } = this.state;
+    const { inputsAlphabet, inputsRow, AFD } = this.state;
+    let table = <table></table>
+    if (AFD) {
+      table = Table({ AFD });
+    }
 
     return (
       <div className="App container" >
         <div className="mt-5">
-
           <div>
             <p>Ingresa la cantidad de letras del alfabeto </p>
             <input type="text" onChange={this.handlerAlphabet} placeholder="Numero de letras del alfabeto" />
             <div id="alphabet">
-              {inputsAlphabet} 
+              {inputsAlphabet}
             </div>
           </div>
 
@@ -177,6 +184,10 @@ class App extends Component {
               {inputsRow}
             </div>
           </div>
+
+          <button className="btn btn-primary" onClick={this.getAFD}>Crear tabla de transiciones de AFD</button>
+
+          {table}
 
         </div>
 
