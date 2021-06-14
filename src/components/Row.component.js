@@ -6,22 +6,32 @@ const Row = (props) => {
     
     let transitions = [];
     let inputState;
+    
+    const inputsForm = {
+        background: "transparent",
+        border: "none",
+        textAlign: "center",
+        color: "white"
+    }
+
     if (i === 0) {
-        inputState = <input type="text" placeholder="Ingrese el estado inicial" onChange={setStates(i)} />
+        inputState = <th scope="row"><input type="text" placeholder="Ingrese el estado inicial" onChange={setStates(i)} style={inputsForm}/></th>
     } else {
-        inputState = <input type="text" placeholder={`Ingrese el estado ${i + 1}`} onChange={setStates(i)} />
+        inputState = <th scope="row"><input type="text" placeholder={`Ingrese el estado ${i + 1}`} onChange={setStates(i)} style={inputsForm}/></th>
     } 
 
     for (let x = 0; x < nAlphabet; x++) {
-        transitions = [...transitions, <input key={x} type="text" placeholder={`ruta ${x + 1}`} onChange={setTransitions(i, x)} />];
+        transitions = [...transitions, <td><input key={x} type="text" placeholder={`ruta ${x + 1}`} onChange={setTransitions(i, x)} style={inputsForm}/></td>];
     }
 
     return (
-        <div>
-            <label>Estado {i + 1}</label>
-            {inputState}
-            {transitions}
-        </div>
+        <>
+                <tr>
+                    <label className="badge bg-primary text-wrap m-1">Estado {i + 1}</label>
+                    {inputState}
+                    {transitions}
+                </tr>
+        </>
     );
 }
 

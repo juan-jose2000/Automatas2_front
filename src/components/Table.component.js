@@ -25,7 +25,7 @@ const Table = (props) => {
         }
 
         return (
-            <tr key={i}>
+            <tr key={i} className="table-primary">
                 {stateRow}
                 {transitions}
             </tr>
@@ -34,6 +34,7 @@ const Table = (props) => {
 
     return (
         <>
+            <h4 className="text-shadow">Tabla AFD equivalente</h4>
             <table className="table table-dark table-striped mt-4">
                 <thead>
                     <tr>
