@@ -155,7 +155,7 @@ class App extends Component {
 
   getAFD = async () => {
     console.log(this.state.automata);
-    const { data: AFD } = await axios('http://192.168.1.78:3001/api/transform', {
+    const { data: AFD } = await axios('http://192.168.100.4:3001/api/transform', {
         method: 'POST',
         data: this.state.automata
     });
