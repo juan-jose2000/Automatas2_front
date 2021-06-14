@@ -65,10 +65,12 @@ class App extends Component {
       this.setState((prevState) => {
         const automata = {
           ...prevState.automata,
-          states: state.length > 1 && state.includes('*') ? this.setArray(i, state.split('')[1], prevState.automata.states) : this.setArray(i, state, prevState.automata.states),
+          states: state.includes('*') 
+            ? this.setArray(i, state.split('*')[1], prevState.automata.states)
+            : this.setArray(i, state, prevState.automata.states),
           initialState: i === 0 ? state : prevState.automata.initialState,
-          acceptanceStates: state.length > 1 && state.includes('*')
-            ? this.setArray(i, state.split('')[1], prevState.automata.acceptanceStates)
+          acceptanceStates: state.includes('*')
+            ? this.setArray(i, state.split('*')[1], prevState.automata.acceptanceStates)
             : prevState.automata.acceptanceStates,
         };
 
